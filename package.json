@@ -1,0 +1,22 @@
+{
+  "name": "repo-template",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.6.0"
+  },
+  "scripts": {
+    "dev": "node --watch src/server.mjs",
+    "test": "node --experimental-strip-types --experimental-test-coverage --test --test-coverage-lines=80",
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc --project tsconfig.build.json"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.15",
+    "typescript": "7.0.2"
+  }
+}

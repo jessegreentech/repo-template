@@ -1,0 +1,20 @@
+{
+  "name": "TypeScript template",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "postCreateCommand": "npm ci",
+  "postStartCommand": "nohup npm run dev > /tmp/repo-template-dev.log 2>&1 </dev/null &",
+  "forwardPorts": [3000],
+  "portsAttributes": {
+    "3000": {
+      "label": "Development server",
+      "onAutoForward": "openBrowser"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": ["biomejs.biome"]
+    }
+  }
+}

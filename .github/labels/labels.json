@@ -1,0 +1,52 @@
+[
+  {
+    "name": "bug",
+    "color": "d73a4a",
+    "description": "Something is not working"
+  },
+  {
+    "name": "severity:critical",
+    "color": "b60205",
+    "description": "Critical impact"
+  },
+  {
+    "name": "severity:high",
+    "color": "d93f0b",
+    "description": "High impact"
+  },
+  {
+    "name": "severity:medium",
+    "color": "fbca04",
+    "description": "Medium impact"
+  },
+  {
+    "name": "severity:low",
+    "color": "0e8a16",
+    "description": "Low impact"
+  },
+  {
+    "name": "security:critical",
+    "color": "b60205",
+    "description": "Critical security impact"
+  },
+  {
+    "name": "security:high",
+    "color": "d93f0b",
+    "description": "High security impact"
+  },
+  {
+    "name": "security:medium",
+    "color": "fbca04",
+    "description": "Medium security impact"
+  },
+  {
+    "name": "security:low",
+    "color": "0e8a16",
+    "description": "Low security impact"
+  },
+  {
+    "name": "needs-manual-investigation",
+    "color": "5319e7",
+    "description": "Requires investigation outside automated checks"
+  }
+]
