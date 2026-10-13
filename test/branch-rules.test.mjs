@@ -12,6 +12,14 @@ test("release and hotfix branches target main", () => {
   assert.equal(pullRequestBranchError("hotfix/fix-crash", "main"), null);
 });
 
+test("Copilot branches target main", () => {
+  assert.equal(pullRequestBranchError("copilot/build-template", "main"), null);
+  assert.match(
+    pullRequestBranchError("copilot/build-template", "develop"),
+    /must target main/,
+  );
+});
+
 test("rejects branches with the wrong target", () => {
   assert.match(
     pullRequestBranchError("feature/add-login", "main"),

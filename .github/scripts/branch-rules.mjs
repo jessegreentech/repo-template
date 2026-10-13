@@ -16,5 +16,9 @@ export function pullRequestBranchError(head, base) {
     return base === "main" ? null : `${head} pull requests must target main`;
   }
 
+  if (new RegExp(`^copilot/${slug}$`).test(head)) {
+    return base === "main" ? null : `${head} pull requests must target main`;
+  }
+
   return `Unsupported branch name: ${head}`;
 }
