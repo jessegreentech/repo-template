@@ -1,0 +1,133 @@
+name: Pull request checks
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+  push:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+
+jobs:
+  project-config:
+    name: Project configuration
+    runs-on: ubuntu-latest
+    outputs:
+      repo_name: ${{ steps.config.outputs.repo_name }}
+      deploy_location: ${{ steps.config.outputs.deploy_location }}
+      language_stack: ${{ steps.config.outputs.language_stack }}
+      template_version: ${{ steps.config.outputs.template_version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - id: config
+        run: node .github/scripts/read-project-config.mjs
+
+  branch-name:
+    name: Branch name and target
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node .github/scripts/check-pull-request-branch.mjs
+        env:
+          GITHUB_HEAD_REF: ${{ github.head_ref }}
+          GITHUB_BASE_REF: ${{ github.base_ref }}
+
+  unit-tests:
+    name: Unit tests and coverage
+    needs: project-config
+    if: needs.project-config.outputs.language_stack == 'typescript'
+    runs-on: ubuntu-latest
+    env:
+      REPOSITORY_NAME: ${{ needs.project-config.outputs.repo_name }}
+      DEPLOY_LOCATION: ${{ needs.project-config.outputs.deploy_location }}
+      TEMPLATE_VERSION: ${{ needs.project-config.outputs.template_version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm test
+
+  lint:
+    name: Lint
+    needs: project-config
+    if: needs.project-config.outputs.language_stack == 'typescript'
+    runs-on: ubuntu-latest
+    env:
+      REPOSITORY_NAME: ${{ needs.project-config.outputs.repo_name }}
+      DEPLOY_LOCATION: ${{ needs.project-config.outputs.deploy_location }}
+      TEMPLATE_VERSION: ${{ needs.project-config.outputs.template_version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+
+  format:
+    name: Format check
+    needs: project-config
+    if: needs.project-config.outputs.language_stack == 'typescript'
+    runs-on: ubuntu-latest
+    env:
+      REPOSITORY_NAME: ${{ needs.project-config.outputs.repo_name }}
+      DEPLOY_LOCATION: ${{ needs.project-config.outputs.deploy_location }}
+      TEMPLATE_VERSION: ${{ needs.project-config.outputs.template_version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run format:check
+
+  typecheck:
+    name: Type check
+    needs: project-config
+    if: needs.project-config.outputs.language_stack == 'typescript'
+    runs-on: ubuntu-latest
+    env:
+      REPOSITORY_NAME: ${{ needs.project-config.outputs.repo_name }}
+      DEPLOY_LOCATION: ${{ needs.project-config.outputs.deploy_location }}
+      TEMPLATE_VERSION: ${{ needs.project-config.outputs.template_version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+
+  build:
+    name: Build
+    needs: project-config
+    if: needs.project-config.outputs.language_stack == 'typescript'
+    runs-on: ubuntu-latest
+    env:
+      REPOSITORY_NAME: ${{ needs.project-config.outputs.repo_name }}
+      DEPLOY_LOCATION: ${{ needs.project-config.outputs.deploy_location }}
+      TEMPLATE_VERSION: ${{ needs.project-config.outputs.template_version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
