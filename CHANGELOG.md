@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.1.3] - 2026-11-21
+
+- The visual checks start the app from the repository root instead of the `visual/`
+  folder, so a `visualServer` command with relative paths works.
+
 ## [1.1.2] - 2026-11-21
 
 - The clipped-text check now looks only at elements that hold text themselves and

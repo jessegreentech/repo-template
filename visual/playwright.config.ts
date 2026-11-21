@@ -39,6 +39,9 @@ export default defineConfig({
     : {
         command: server.command,
         url: server.url,
+        // Start from the repository root (where npm run visual is run), not from
+        // visual/, so relative paths in the command work.
+        cwd: process.cwd(),
         reuseExistingServer: true,
         timeout: 120_000,
       },
