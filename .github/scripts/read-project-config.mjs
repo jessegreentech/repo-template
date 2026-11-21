@@ -29,6 +29,36 @@ if (!/^\d+\.\d+\.\d+$/.test(config.templateVersion)) {
   );
 }
 
+// Optional visual-testing fields. A config without them behaves as a repo with
+// no UI, so repositories bootstrapped from an earlier template version keep working.
+const hasUI = config.hasUI ?? false;
+if (typeof hasUI !== "boolean") {
+  throw new Error("project.config.json hasUI must be true or false");
+}
+
+const viewportLists = ["breakpoints", "testViewports"];
+for (const key of viewportLists) {
+  const value = config[key];
+  if (
+    value !== undefined &&
+    !(
+      Array.isArray(value) &&
+      value.every((width) => Number.isInteger(width) && width > 0)
+    )
+  ) {
+    throw new Error(
+      `project.config.json ${key} must be a list of positive whole numbers`,
+    );
+  }
+}
+
+const previewDeploy = config.previewDeploy ?? "";
+if (typeof previewDeploy !== "string" || /[\r\n]/.test(previewDeploy)) {
+  throw new Error(
+    "project.config.json previewDeploy must be a single-line string",
+  );
+}
+
 const output = process.env.GITHUB_OUTPUT;
 if (!output) {
   throw new Error("GITHUB_OUTPUT is not set");
@@ -38,3 +68,5 @@ appendFileSync(output, `repo_name=${config.repoName}\n`);
 appendFileSync(output, `deploy_location=${config.deployLocation}\n`);
 appendFileSync(output, `language_stack=${config.languageStack}\n`);
 appendFileSync(output, `template_version=${config.templateVersion}\n`);
+appendFileSync(output, `has_ui=${hasUI}\n`);
+appendFileSync(output, `preview_deploy=${previewDeploy}\n`);

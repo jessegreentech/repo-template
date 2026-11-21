@@ -3,7 +3,7 @@
   "build": {
     "dockerfile": "Dockerfile"
   },
-  "postCreateCommand": "npm ci",
+  "postCreateCommand": "npm ci && bash tools/setup-visual.sh",
   "postStartCommand": "nohup npm run dev > /tmp/repo-template-dev.log 2>&1 </dev/null &",
   "forwardPorts": [3000],
   "portsAttributes": {

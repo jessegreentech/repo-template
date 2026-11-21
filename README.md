@@ -12,6 +12,12 @@ Update `project.config.json` for the destination repository:
 - `deployLocation`: the deployment target, or an empty string until one is chosen.
 - `languageStack`: `typescript` for this default stack.
 - `templateVersion`: the version in `VERSION` when this template was applied.
+- `hasUI`: `true` if the product has a user interface. Turns on the visual
+  testing layer below. Defaults to `false` when absent.
+- `breakpoints`: widths where the CSS changes (default 380, 480, 768, 1024, 1920).
+- `testViewports`: widths the visual checks screenshot (default 380, 768, 1024, 1920).
+- `previewDeploy`: where per-pull-request previews are deployed, or an empty
+  string for none. See `tools/preview-deploy.sh`.
 
 The CI workflow reads this configuration. Reconciliation compares
 `templateVersion` with `VERSION`: patch gaps are routine, minor gaps merit review,
@@ -56,6 +62,32 @@ npm run build
 For a bare Ubuntu machine, run `tools/setup-linux.sh`; log out and back in after
 it adds your account to the Docker group. The script installs Docker, Node.js,
 npm, Git, and the tools required by this template.
+
+## Visual testing (repositories with a UI)
+
+Set `"hasUI": true` in `project.config.json` to use it. It is advisory and never
+required to merge.
+
+- `docs/design/` holds the design source, reference images, `tokens.json` and
+  `layout-rules.md`. Fill these in before building pages.
+- `visual/pages.json` lists every page and state to check (one entry per state,
+  for example `/projects?fixture=empty`).
+- `npm run visual` runs the structural layout checks (no overflow, no broken
+  images, no clipped text, no console errors) at every test width, and compares
+  against baselines where they exist.
+- `npm run visual:baseline` creates only the missing baselines. It never
+  overwrites one. Baselines are approved by the owner when the pull request that
+  adds them is approved.
+- `npm run visual:evidence` writes screenshots to `visual/output/evidence/` for the
+  pull request's "Visual evidence" section.
+- After `npm ci`, run `tools/setup-visual.sh` to install the browser. The
+  devcontainer does this for you. Set `CHROME_PATH` to use an installed Chrome
+  when Playwright cannot download one.
+- `.github/workflows/visual.yml` runs the checks on pull requests and, when
+  `previewDeploy` is set, deploys a preview from a self-hosted runner labelled
+  `homelab`. A self-hosted runner must not run pull requests from forks, so the
+  preview job only runs for pull requests from this repository. Implement
+  `tools/preview-deploy.sh` for your host first.
 
 ## Branches and checks
 

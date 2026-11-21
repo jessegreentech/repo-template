@@ -5,3 +5,8 @@ coverage/
 .env.*
 !.env.example
 npm-debug.log*
+
+# Visual testing output (screenshots, reports)
+visual/output/
+playwright-report/
+test-results/

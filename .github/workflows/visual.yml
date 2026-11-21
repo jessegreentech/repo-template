@@ -1,0 +1,78 @@
+name: Visual checks
+
+# Never required to merge. Visual checks inform review; they do not gate it.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+
+jobs:
+  project-config:
+    name: Project configuration
+    runs-on: ubuntu-latest
+    outputs:
+      has_ui: ${{ steps.config.outputs.has_ui }}
+      preview_deploy: ${{ steps.config.outputs.preview_deploy }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - id: config
+        run: node .github/scripts/read-project-config.mjs
+
+  visual:
+    name: Visual regression
+    needs: project-config
+    if: needs.project-config.outputs.has_ui == 'true'
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: bash tools/setup-visual.sh
+      - run: npm run visual
+      - run: npm run visual:evidence
+        if: always()
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: visual-output
+          path: visual/output/
+          if-no-files-found: ignore
+
+  preview:
+    name: Preview deploy
+    needs: project-config
+    # Runs on the self-hosted runner, so only for pull requests from this
+    # repository. Pull requests from forks never reach the runner.
+    if: >-
+      needs.project-config.outputs.has_ui == 'true' &&
+      needs.project-config.outputs.preview_deploy != '' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: [self-hosted, homelab]
+    continue-on-error: true
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - id: deploy
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PREVIEW_DEPLOY: ${{ needs.project-config.outputs.preview_deploy }}
+        run: |
+          url="$(bash tools/preview-deploy.sh | tail -n 1)"
+          echo "url=${url}" >> "$GITHUB_OUTPUT"
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          PREVIEW_URL: ${{ steps.deploy.outputs.url }}
+        run: gh pr comment "$PR_URL" --body "Preview: ${PREVIEW_URL}"
