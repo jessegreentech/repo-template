@@ -2,7 +2,7 @@
   "repoName": "repo-template",
   "deployLocation": "",
   "languageStack": "typescript",
-  "templateVersion": "1.1.1",
+  "templateVersion": "1.1.2",
   "hasUI": false,
   "breakpoints": [380, 480, 768, 1024, 1920],
   "testViewports": [380, 768, 1024, 1920],

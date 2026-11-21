@@ -47,21 +47,29 @@ for (const entry of pages) {
       await page.waitForLoadState("networkidle");
       // Text cut off by overflow:hidden without an ellipsis is usually a
       // layout bug. Intentional clipping should use text-overflow: ellipsis or
-      // line clamping.
+      // line clamping. Only elements that hold text themselves are checked, so
+      // decorative containers are ignored, and visually hidden text (such as
+      // screen-reader-only labels) is skipped.
       const clipped = await page.evaluate(() => {
         const found: string[] = [];
         for (const element of Array.from(document.body.querySelectorAll("*"))) {
           const style = getComputedStyle(element);
           const hidesX =
             style.overflowX === "hidden" || style.overflowX === "clip";
+          const ownText = Array.from(element.childNodes)
+            .filter((node) => node.nodeType === Node.TEXT_NODE)
+            .map((node) => node.textContent ?? "")
+            .join("")
+            .trim();
           if (
             hidesX &&
             style.textOverflow !== "ellipsis" &&
-            element.scrollWidth > element.clientWidth + 1 &&
-            (element.textContent ?? "").trim().length > 0
+            ownText.length > 0 &&
+            element.clientWidth > 2 &&
+            element.scrollWidth > element.clientWidth + 1
           ) {
             found.push(
-              `${element.tagName.toLowerCase()}: ${(element.textContent ?? "").trim().slice(0, 40)}`,
+              `${element.tagName.toLowerCase()}: ${ownText.slice(0, 40)}`,
             );
           }
           if (found.length >= 20) break;

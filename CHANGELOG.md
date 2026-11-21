@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.2] - 2026-11-21
+
+- The clipped-text check now looks only at elements that hold text themselves and
+  skips visually hidden text, so decorative containers and screen-reader-only
+  labels no longer trigger it.
+
 ## [1.1.1] - 2026-11-21
 
 - `project.config.json` gains an optional `visualServer` (`command` and `url`) so
