@@ -52,6 +52,19 @@ for (const key of viewportLists) {
   }
 }
 
+const visualServer = config.visualServer;
+if (
+  visualServer !== undefined &&
+  !(
+    typeof visualServer?.command === "string" &&
+    typeof visualServer?.url === "string"
+  )
+) {
+  throw new Error(
+    "project.config.json visualServer must have a command and a url, both strings",
+  );
+}
+
 const previewDeploy = config.previewDeploy ?? "";
 if (typeof previewDeploy !== "string" || /[\r\n]/.test(previewDeploy)) {
   throw new Error(

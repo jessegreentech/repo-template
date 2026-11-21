@@ -16,6 +16,8 @@ Update `project.config.json` for the destination repository:
   testing layer below. Defaults to `false` when absent.
 - `breakpoints`: widths where the CSS changes (default 380, 480, 768, 1024, 1920).
 - `testViewports`: widths the visual checks screenshot (default 380, 768, 1024, 1920).
+- `visualServer`: `{ "command", "url" }` for the app the visual checks start
+  (default `npm run dev` on `http://localhost:3000`).
 - `previewDeploy`: where per-pull-request previews are deployed, or an empty
   string for none. See `tools/preview-deploy.sh`.
 

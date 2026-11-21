@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.1] - 2026-11-21
+
+- `project.config.json` gains an optional `visualServer` (`command` and `url`) so
+  the visual checks can start the right server for the stack (for example a
+  production preview build). Defaults to `npm run dev` on port 3000.
+
 ## [1.1.0] - 2026-11-21
 
 - Add the visual testing layer for repositories with a UI: `hasUI`,
