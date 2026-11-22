@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.2.0] - 2026-11-22
+
+- CI creates missing screenshot baselines. A new "Create missing baselines" job in
+  `visual.yml` runs `tools/ci-baseline.sh` on pull requests from this repository,
+  commits the new baseline images to the branch and comments the list for review.
+  It never overwrites or deletes a baseline, never gates a merge, and does not run
+  for forks. Baselines are no longer committed from a local machine.
+- Fixes `visual.yml`, which was not valid YAML: the preview comment step had an
+  unquoted colon, so GitHub would have rejected the whole workflow.
+
 ## [1.1.3] - 2026-11-21
 
 - The visual checks start the app from the repository root instead of the `visual/`

@@ -77,15 +77,20 @@ required to merge.
 - `npm run visual` runs the structural layout checks (no overflow, no broken
   images, no clipped text, no console errors) at every test width, and compares
   against baselines where they exist.
-- `npm run visual:baseline` creates only the missing baselines. It never
-  overwrites one. Baselines are approved by the owner when the pull request that
-  adds them is approved.
+- Baselines are created by CI. On a pull request from this repository, the
+  "Create missing baselines" job runs `tools/ci-baseline.sh`, which runs
+  `npm run visual:baseline` (creates only the missing ones, never overwrites),
+  commits them to the branch and comments the list. The owner reviews the images
+  in the diff, and approving the pull request approves them. To change an
+  approved baseline, delete its file in the pull request; CI recreates it. Do not
+  commit baselines made locally: a different browser build renders slightly
+  differently.
 - `npm run visual:evidence` writes screenshots to `visual/output/evidence/` for the
   pull request's "Visual evidence" section.
 - After `npm ci`, run `tools/setup-visual.sh` to install the browser. The
   devcontainer does this for you. Set `CHROME_PATH` to use an installed Chrome
   when Playwright cannot download one.
-- `.github/workflows/visual.yml` runs the checks on pull requests and, when
+- `.github/workflows/visual.yml` runs the checks and the baseline job on pull requests and, when
   `previewDeploy` is set, deploys a preview from a self-hosted runner labelled
   `homelab`. A self-hosted runner must not run pull requests from forks, so the
   preview job only runs for pull requests from this repository. Implement

@@ -1,6 +1,8 @@
 name: Visual checks
 
 # Never required to merge. Visual checks inform review; they do not gate it.
+# The baseline job creates missing screenshot baselines on same-repository pull
+# requests and commits them to the branch for the owner to review in the diff.
 on:
   pull_request:
     types: [opened, synchronize, reopened]
@@ -47,6 +49,40 @@ jobs:
           path: visual/output/
           if-no-files-found: ignore
 
+  baseline:
+    name: Create missing baselines
+    needs: project-config
+    # Writes to the pull request branch, so only for pull requests from this
+    # repository. Forks and Dependabot get no write token and never reach it.
+    if: >-
+      needs.project-config.outputs.has_ui == 'true' &&
+      github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    concurrency:
+      group: visual-baseline-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: bash tools/setup-visual.sh
+      - id: baseline
+        run: bash tools/ci-baseline.sh
+      - if: steps.baseline.outputs.added == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+        run: gh pr comment "$PR_URL" --body-file visual/output/baseline-comment.md
+
   preview:
     name: Preview deploy
     needs: project-config
@@ -75,4 +111,4 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           PR_URL: ${{ github.event.pull_request.html_url }}
           PREVIEW_URL: ${{ steps.deploy.outputs.url }}
-        run: gh pr comment "$PR_URL" --body "Preview: ${PREVIEW_URL}"
+        run: gh pr comment "$PR_URL" --body "Preview ${PREVIEW_URL}"

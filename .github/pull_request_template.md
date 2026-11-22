@@ -13,4 +13,4 @@
 - Preview URL:
 - Screenshots (per viewport in project.config.json testViewports):
 - Differences from the design reference (page, viewport, what differs):
-- Baselines: none / added / changed (changed baselines need explicit approval)
+- Baselines: none / added by CI (review the images in the diff) / changed (a deleted-and-recreated baseline needs explicit approval)

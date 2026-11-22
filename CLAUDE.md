@@ -16,9 +16,13 @@ Process rules that apply to every change. The workflow skills assume them.
 - Write the structural checks in `visual/layout.spec.ts` terms first and see
   them fail before implementing, like any other test.
 - Never create, overwrite or delete a screenshot baseline to make a check pass.
-  Fix the UI instead. Baselines are added with `npm run visual:baseline`, which
-  only creates missing ones, and each addition or change is called out in the
-  pull request for the owner to approve.
+  Fix the UI instead. Do not commit baselines made on your own machine. CI
+  creates the missing ones on the pull request branch (the "Create missing
+  baselines" job in `.github/workflows/visual.yml`, run by `tools/ci-baseline.sh`)
+  and comments the list, so the owner approves them by approving the pull
+  request. Pull the branch before pushing again once that commit appears. To
+  change an approved baseline, delete its file in the pull request and say so in
+  the "Visual evidence" section; CI recreates it and the diff shows the change.
 - Before opening a pull request for UI work, run `npm run visual:evidence`, view
   the screenshots next to the reference images, and list every difference in the
   pull request's "Visual evidence" section.
@@ -27,4 +31,4 @@ Process rules that apply to every change. The workflow skills assume them.
 
 If Playwright cannot download Chromium (a restricted network), set `CHROME_PATH`
 to an installed Chrome, for example `CHROME_PATH=/usr/bin/google-chrome npm run visual`.
-Baselines made with a different browser build can differ slightly from CI.
+Screenshots made with a different browser build can differ slightly from CI, which is why CI creates the baselines.
